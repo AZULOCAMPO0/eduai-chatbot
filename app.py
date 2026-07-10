@@ -1,6 +1,8 @@
 import os
 from flask import Flask, jsonify, request
 from dotenv import load_dotenv
+from chatbot import responder
+from database.database import crear_base_datos, guardar_conversacion
 
 load_dotenv()
 
@@ -8,9 +10,12 @@ app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
 
+# Crear la base de datos automáticamente al iniciar
+crear_base_datos()
+
 
 def validar_api_key():
-    # /health queda libre
+    # El endpoint /health queda libre
     if request.path == "/health":
         return True
 
@@ -44,6 +49,26 @@ def health():
 def version():
     return jsonify({
         "version": "1.0"
+    })
+
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    datos = request.get_json()
+
+    mensaje = datos.get("mensaje", "")
+
+    respuesta = responder(mensaje)
+
+    # Guardar la conversación en la base de datos
+    guardar_conversacion(
+        "Usuario",
+        mensaje,
+        respuesta
+    )
+
+    return jsonify({
+        "respuesta": respuesta
     })
 
 
