@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from dotenv import load_dotenv
 from chatbot import responder
 from database.database import crear_base_datos, guardar_conversacion
@@ -10,13 +10,13 @@ app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
 
-# Crear la base de datos automáticamente al iniciar
+# Crear la base de datos automáticamente
 crear_base_datos()
 
 
 def validar_api_key():
-    # El endpoint /health queda libre
-    if request.path == "/health":
+    # Estas rutas no requieren API Key
+    if request.path == "/" or request.path == "/health":
         return True
 
     api_key = request.headers.get("X-API-KEY")
@@ -31,13 +31,13 @@ def autenticar():
         }), 401
 
 
+# Página principal
 @app.route("/", methods=["GET"])
 def inicio():
-    return jsonify({
-        "mensaje": "Bienvenido a EduAI"
-    })
+    return render_template("index.html")
 
 
+# Estado de la API
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({
@@ -45,6 +45,7 @@ def health():
     })
 
 
+# Versión
 @app.route("/version", methods=["GET"])
 def version():
     return jsonify({
@@ -52,15 +53,20 @@ def version():
     })
 
 
+# Chat
 @app.route("/chat", methods=["POST"])
 def chat():
+
     datos = request.get_json()
 
-    mensaje = datos.get("mensaje", "")
+    if not datos or "mensaje" not in datos:
+        return jsonify({
+            "error": "Debes enviar un mensaje"
+        }), 400
 
+    mensaje = datos["mensaje"]
     respuesta = responder(mensaje)
 
-    # Guardar la conversación en la base de datos
     guardar_conversacion(
         "Usuario",
         mensaje,
@@ -73,4 +79,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
