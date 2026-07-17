@@ -1,6 +1,7 @@
 import os
 from flask import Flask, jsonify, request, render_template
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 from chatbot import responder
 from database.database import crear_base_datos, guardar_conversacion
@@ -12,6 +13,7 @@ from database.database import crear_base_datos, guardar_conversacion
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 API_KEY = os.getenv("API_KEY")
 
