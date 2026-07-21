@@ -58,6 +58,8 @@ button{
     padding:10px;
     border-radius:10px;
     margin:10px 0;
+    /* Respeta los saltos de línea (\n) y espacios múltiples del texto */
+    white-space:pre-line;
 }
 
 .bot{
@@ -65,6 +67,8 @@ button{
     padding:10px;
     border-radius:10px;
     margin:10px 0;
+    /* Respeta los saltos de línea (\n) y espacios múltiples del texto */
+    white-space:pre-line;
 }
 
 </style>
@@ -94,6 +98,14 @@ Enviar
 
 const chat=document.getElementById("respuesta");
 
+// Escapa caracteres HTML del mensaje del usuario y del bot antes de insertarlos,
+// para que un mensaje como "<script>" no se interprete como HTML.
+function escaparHtml(texto){
+    const div=document.createElement("div");
+    div.textContent=texto;
+    return div.innerHTML;
+}
+
 async function enviar(){
 
     const mensaje=document.getElementById("mensaje").value.trim();
@@ -104,7 +116,7 @@ async function enviar(){
 
     chat.innerHTML += `
         <div class="usuario">
-            <strong>Tú:</strong><br>${mensaje}
+            <strong>Tú:</strong><br>${escaparHtml(mensaje)}
         </div>
     `;
 
@@ -133,7 +145,7 @@ async function enviar(){
 
         chat.innerHTML += `
             <div class="bot">
-                <strong>EduAI:</strong><br>${datos.respuesta}
+                <strong>EduAI:</strong><br>${escaparHtml(datos.respuesta)}
             </div>
         `;
 

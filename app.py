@@ -28,7 +28,9 @@ crear_base_datos()
 def validar_api_key():
 
     # Estas rutas son públicas
-    if request.path in ["/", "/health", "/chat"]:
+    # (se agregó "/version" porque tú mismo lo documentas como endpoint
+    # público y antes no estaba en la lista, así que devolvía 401)
+    if request.path in ["/", "/health", "/version", "/chat"]:
         return True
 
     api_key = request.headers.get("X-API-KEY")
